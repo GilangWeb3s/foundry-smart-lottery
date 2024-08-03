@@ -9,14 +9,20 @@ pragma solidity ^0.8.19;
  */
 
 contract Raffle{
-    uint256 private immutable i_entranceFee;
+    error Raffle__sendMoreEth();
+
+    uint256 private immutable i_entranceFee; 
+    address payable[] private s_players;
 
     constructor(uint256 entranceFee){
         i_entranceFee = entranceFee;
     }
 
     function enterRaffle() public payable{
-
+        if(msg.value < i_entranceFee){
+            revert Raffle__sendMoreEth();
+        }
+        s_players.push(payable(msg.sender));
     }
 
     function pickWinner() public{

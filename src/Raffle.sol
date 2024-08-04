@@ -60,6 +60,20 @@ contract Raffle is VRFConsumerBaseV2Plus{
         emit RaffleEnter(msg.sender);
     }
 
+    /** 
+     * @dev  below is a function from chainlink to see if a winner (condition) is ready to be picked where it has to meet these criteria to be met
+     *       1. time interval has passed
+     *       2. raffle state is open
+     *       3. contract has eth
+     *       4. subscription has LINK
+     * @param -ignored
+     * @return upkeepNeeded - true if its time to restart the lottery
+     * @return -ignored
+     */
+    function checkUpkeep(bytes calldata /* checkData */) public view returns(bool upkeepNeeded, bytes memory /* performData */){
+
+    } 
+
     function pickWinner() external {
         if ((block.timestamp - s_lastTimeStamp) > i_interval) {
             revert();
@@ -84,18 +98,17 @@ contract Raffle is VRFConsumerBaseV2Plus{
     function fulfillRandomWords(uint256 requetId, uint256[] calldata randomWords) internal override {
         uint256 indexOfWinner = randomWords[0] % s_players.length;
         address payable recentWinner = s_players[indexOfWinner];
-        s_recentWinner = recentWinner;
 
+        s_recentWinner = recentWinner;
         s_raffleState = RaffleState.OPEN;
         s_players = new address payable[](0);
         s_lastTimeStamp = block.timestamp;
+        emit WinnerPicked(s_recentWinner);
 
         (bool success, ) = recentWinner.call{value: address(this).balance}("");
         if(!success) {
             revert Raffle__TransferError();
         }
-
-        emit WinnerPicked(s_recentWinner);
     }
 
     function getEntranceFee() external view returns (uint256) {

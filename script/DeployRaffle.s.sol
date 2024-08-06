@@ -8,7 +8,7 @@ import {CreateSubscription, FundSubscription, AddConsumer} from "./Interaction.s
 
 contract DeployRaffle is Script{
     function run() public{
-
+        deployContract();
     }
     function deployContract() public returns(Raffle, HelperConfig){
         HelperConfig helperConfig = new HelperConfig();
@@ -35,7 +35,7 @@ contract DeployRaffle is Script{
 
         AddConsumer addConsumer = new AddConsumer();
         addConsumer.addConsumer(address(raffle), config.vrfCoordinator, config.subscriptionId);
-        
+
         return (raffle, helperConfig);
     }
 }
